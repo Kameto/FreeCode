@@ -11,4 +11,6 @@ public:
 
 	void Update();
 	void Draw();
+	int GetX();
+	int GetY();
 };

@@ -21,8 +21,6 @@ Player::~Player()
 
 void Player::Update()
 {
-	
-
 	if (CheckHitKey(KEY_INPUT_RIGHT) > 0)
 	{
 		if (Map::GetMapData((int)y / 32, ((int)x / 32) + 1) == 1)
@@ -44,37 +42,28 @@ void Player::Update()
 
 	if (Map::GetMapData((y / 32) + 1, x / 32) == 1 && !jumpflag)
 	{
-		y += 2.0;
+		y += 5.0;
 	}
 	else {}
 
 
 	if (CheckHitKey(KEY_INPUT_SPACE) == 1)
 	{
-		jumpflag = true;
-		if (Map::GetMapData((y / 32) - 1, x / 32) == 1)
-		{
-			for (int i = 0; i < 3; i++)
-			{
-				if (jumpflag)
-				{
-					y -= speed;
-				}
-				else 
-				{
-					jumpflag = false;
-					break;
-				}
-			}
-		}
-		else 
-		{
-			jumpflag = false;
-		}
+		// ƒWƒƒƒ“ƒvˆ—‚ð‘‚­
 	}
 }
 
 void Player::Draw()
 {
 	DrawBox(x, y, x + 32, y + 32, 0x00FF00, true);
+}
+
+int Player::GetX()
+{
+	return (int)x;
+}
+
+int Player::GetY()
+{
+	return (int)y;
 }

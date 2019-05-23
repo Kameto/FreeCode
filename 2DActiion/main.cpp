@@ -1,6 +1,5 @@
 #include "DxLib.h"
-#include "Map.hpp"
-#include "Player.hpp"
+#include "Game.hpp"
 
 int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -8,7 +7,7 @@ int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	ChangeWindowMode(false);					// スクリーン設定
 	SetOutApplicationLogValidFlag(true);		// logファイルの生成
 	SetGraphMode(1920, 1080, 32);				// 描画範囲
-	SetFontSize(16);							// 文字サイズ設定
+	SetFontSize(32);							// 文字サイズ設定
 
 	if (DxLib_Init() == -1)						// Dxライブラリの初期化
 	{
@@ -19,24 +18,21 @@ int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	{
 		return -1;
 	}
-	Player* player = new Player(512,96);
-	Map* map = new Map();
+	
+	Game* game = new Game();
+;
 	// メッセージループ
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
 		ClearDrawScreen();
-		player->Update();
-		player->Draw();
-		map->Draw();
+		game->Update();
+		game->Draw();
 		ScreenFlip();
 	}
-
 	InitSoundMem();
 	InitGraph();
-	delete map;
-	map = nullptr;
-	delete player;
-	player = nullptr;
+	delete game;
+	game = nullptr;
 	DxLib_End();
 	return 0;
 }

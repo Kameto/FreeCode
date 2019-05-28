@@ -14,8 +14,8 @@ public:
 	void Draw();
 	static int GetMapData(int _y, int _x);
 
-	int cameraX;
-	int cameraY;
+	static int cameraX;
+	static int cameraY;
 
 private:
 	void LoadText();

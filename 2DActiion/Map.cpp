@@ -1,10 +1,12 @@
 #include "Map.hpp"
 
 std::vector<std::vector<int>>Map::mapdata;
+int Map::cameraX;
+int Map::cameraY;
 
 Map::Map()
 {
-	mapdata.resize(30);
+	mapdata.resize(32);
 	comment = "";
 	cameraX = 16;
 	cameraY = 11;
@@ -13,9 +15,9 @@ Map::Map()
 
 Map::~Map()
 {
-	for (int i = 0, n = (unsigned)mapdata.size(); i < n; i++)
+	for (int i = 0 + cameraY, n = (unsigned)mapdata.size(); i < n; i++)
 	{
-		for (int j = 0, m = (unsigned)mapdata[i].size(); j < m; j++)
+		for (int j = 0 + cameraX, m = (unsigned)mapdata[i].size(); j < m; j++)
 		{
 			mapdata[i][j] = 0;
 		}
@@ -26,6 +28,8 @@ Map::~Map()
 
 void Map::Draw()
 {
+	// マップスクロールは後回し。わからんｗ
+
 	for (int i = 0, n = (unsigned)mapdata.size(); i < n; i++)
 	{
 		for (int j = 0, m = (unsigned)mapdata[i].size(); j < m; j++)
@@ -33,14 +37,16 @@ void Map::Draw()
 			if (mapdata[i][j] == 0)
 			{
 				DrawBox(j * 32, i * 32, j * 32 + 32, i * 32 + 32, 0xFFFFFF, true);
+				DrawBox(j * 32, i * 32, j * 32 + 32, i * 32 + 32, 0x000000, false);
 			}
-			else{}
-#ifdef _DEBUG
+			else {}
+			
+#ifdef DEBUG
 			DrawFormatString(j * 32, i * 32+16, 0x0000FF, "%d", mapdata[i][j]);
 #endif
 		}
 	}
-	DrawFormatString(0, 0, 0xFF0000, "%s", comment.c_str());
+	//DrawFormatString(0, 0, 0xFF0000, "%s", comment.c_str());
 }
 
 int Map::GetMapData(int _y, int _x)

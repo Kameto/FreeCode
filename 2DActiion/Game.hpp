@@ -1,6 +1,7 @@
 #pragma once
 #include "Map.hpp"
 #include "Player.hpp"
+#include "Enemy.hpp"
 #include "Item.hpp"
 
 class Game
@@ -15,9 +16,9 @@ public:
 private:
 	Player* player;
 	Map* map;
+	std::vector<Enemy*>enemy;
 	std::vector<Item*>item;
-
-	int min;// •ª
-	int sec;// •b
+	int min;
+	int sec;
 	bool timeflag;
 };

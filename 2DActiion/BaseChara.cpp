@@ -7,8 +7,8 @@ BaseChara::BaseChara()
 	bx = 0.0;
 	by = 0.0;
 	speed = 0.0;
-	jumpspeed = 0.0;
 	jumpcounter = 0;
+	life = 0;
 	jumpflag = false;
 	muki = Muki::Right;
 }
@@ -20,22 +20,42 @@ BaseChara::~BaseChara()
 	bx = 0.0;
 	by = 0.0;
 	speed = 0.0;
-	jumpspeed = 0.0;
 	jumpcounter = 0;
+	life = 0;
 	jumpflag = false;
 	muki = Muki::Right;
 }
 
-bool BaseChara::HitChara()
+int BaseChara::GetX()
 {
-	if (Map::GetMapData((int)y / 32, ((int)x / 32)) == 1 ||
-		Map::GetMapData((int)y / 32, ((int)x / 32) + 1) == 1 ||
-		Map::GetMapData(((int)y / 32) + 1, (int)x / 32) == 1 )
+	return (int)x;
+}
+
+int BaseChara::GetY()
+{
+	return (int)y;
+}
+
+void BaseChara::GravtyMotion()
+{
+	if (Map::GetMapData(((int)y / TIP_SIZE) + 1, (int)x / TIP_SIZE) != WALL)
 	{
-		return true;
+		if (!jumpflag)
+		{
+			y += Gravty;
+		}
+		else {}
 	}
-	else 
+	else
 	{
-		return false;
+		if (jumpflag)
+		{
+			jumpflag = false;
+		}
 	}
+}
+
+void BaseChara::JumpMotion()
+{
+	
 }

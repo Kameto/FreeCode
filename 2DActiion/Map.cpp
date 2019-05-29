@@ -1,6 +1,7 @@
 #include "Map.hpp"
 
 std::vector<std::vector<int>>Map::mapdata;
+std::string Map::comment;
 int Map::cameraX;
 int Map::cameraY;
 
@@ -40,18 +41,26 @@ void Map::Draw()
 				DrawBox(j * 32, i * 32, j * 32 + 32, i * 32 + 32, 0x000000, false);
 			}
 			else {}
-			
-#ifdef DEBUG
-			DrawFormatString(j * 32, i * 32+16, 0x0000FF, "%d", mapdata[i][j]);
-#endif
 		}
 	}
-	//DrawFormatString(0, 0, 0xFF0000, "%s", comment.c_str());
+#ifdef _DEBUG
+	MapDebugDraw();
+#endif
 }
 
 int Map::GetMapData(int _y, int _x)
 {
 	return mapdata[_y][_x];
+}
+
+int Map::GetMapSizeX()
+{
+	return (unsigned)mapdata[0].size();
+}
+
+int Map::GetmapSizeY()
+{
+	return (unsigned)mapdata.size();
 }
 
 void Map::LoadText()
@@ -89,4 +98,11 @@ void Map::LoadText()
 		comment = "error!";
 	}
 	ifs.close();
+}
+
+void Map::MapDebugDraw()
+{
+	DrawFormatString(0, 0, 0xFF0000, "%s", comment.c_str());
+	DrawFormatString(128, 0, 0xFF0000, "Y: %d", (unsigned)mapdata.size());
+	DrawFormatString(128, 32, 0xFF0000, "X: %d", (unsigned)mapdata[0].size());
 }

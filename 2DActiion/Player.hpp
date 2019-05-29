@@ -12,17 +12,16 @@ public:
 	void Update();
 	void Draw();
 	void Atack();
-	void Jump();
-	int GetX();
-	int GetY();
+	
 	int GetBX();
 	int GetBY();
+
+	bool atackflag;
 
 private:
 	int timer;
 	double ballX;
 	double ballY;
-	bool atackflag;
-	Muki muki;
+	
 	Muki b_muki;
 };

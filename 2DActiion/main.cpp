@@ -1,3 +1,26 @@
+// ここでは課題の試作を作っています
+// 以下が条件です。〇は完成、△は途中、×は未完成です。
+/*
+・Xboxコントローラー対応						×
+・ESCキーもしくはXboxコントローラーの
+	StartボタンとBackボタン同時押しで終了する	△
+
+・主人公が存在し、操作できる。
+　-移動ができる									〇
+　-ジャンプができる								△
+
+ ・敵2種類以上
+　敵はステータスのみの差ではなく、
+	アルゴリズムの違いがあるものとする。		△
+
+・画面が進行方向にスクロールする				×
+・敵を倒すことができる							〇
+・アイテム1種類以上								〇
+・クリア条件がある								×
+・画像表示を使っている							×
+・音を出すことができる							×
+*/
+
 #include "DxLib.h"
 #include "Game.hpp"
 
@@ -29,6 +52,7 @@ int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		game->Draw();
 		ScreenFlip();
 	}
+
 	InitSoundMem();
 	InitGraph();
 	delete game;

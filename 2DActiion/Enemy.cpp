@@ -46,7 +46,7 @@ Enemy::~Enemy()
 
 void Enemy::Update()
 {
-	if (Map::GetMapData((int)y / 32, ((int)x / 32) + 1) == 0 && muki == Muki::Right)
+	/*if (Map::GetMapData((int)y / 32, ((int)x / 32) + 1) == 0 && muki == Muki::Right)
 	{
 		muki = Muki::Left;
 	}
@@ -66,7 +66,7 @@ void Enemy::Update()
 		break;
 	default:
 		break;
-	}
+	}*/
 	
 	if (mode == 0)
 	{
@@ -78,14 +78,15 @@ void Enemy::Update()
 	}
 	else {}
 	
-	if (Map::GetMapData(((int)y / 32) + 1, (int)x / 32) == 1 && !jumpflag)
-	{
-		y += 5.0;
-	}
-	else {}
+	BaseChara::GravtyMotion();
 }
 
 void Enemy::Draw()
 {
 	DrawBox((int)x, (int)y, (int)x + 32, (int)y + 32, 0x00FF00, true);
+}
+
+void Enemy::Atack()
+{
+	// ç°ÇÃÇ∆Ç±ÇÎçlÇ¶ÇƒÇ¢Ç»Ç¢
 }

@@ -10,6 +10,7 @@ public:
 	~Enemy();
 	void Update();
 	void Draw();
+	void Atack();
 
 private:
 	int mode;

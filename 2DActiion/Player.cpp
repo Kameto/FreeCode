@@ -1,27 +1,29 @@
 #include "Player.hpp"
 
-Player::Player() : BaseChara()
+Player::Player() 
+	: BaseChara()
 {
+	life = START_LIFE;
 	timer = 0;
 	ballX = 0;
 	ballY = 0;
 	atackflag = false;
-	muki = Muki::Right;
 	b_muki = Muki::Right;
 }
 
-Player::Player(double _x, double _y) : BaseChara()
+Player::Player(double _x, double _y) 
+	: BaseChara()
 {
 	x = _x;
 	y = _y;
 	bx = x;
 	by = y;
-	speed = 5.2;
+	speed = 4.2;
+	life = START_LIFE;
 	timer = 0;
 	ballX = 0;
 	ballY = 0;
 	atackflag = false;
-	muki = Muki::Right;
 	b_muki = Muki::Right;
 }
 
@@ -31,7 +33,6 @@ Player::~Player()
 	ballX = 0;
 	ballY = 0;
 	atackflag = false;
-	muki = Muki::Right;
 	b_muki = Muki::Right;
 }
 
@@ -47,26 +48,14 @@ void Player::Update()
 		muki = Muki::Left;
 		x -= speed;
 	}
-	else{}
+	else {}
 
-	if (Map::GetMapData(((int)y / 32) + 1, (int)x / 32) == 1)
+	BaseChara::GravtyMotion();
+	if (CheckHitKey(KEY_INPUT_SPACE) == 1 && !jumpflag)
 	{
-		if (!jumpflag)
-		{
-			y += 5.0;
-		}
+		BaseChara::JumpMotion();
 	}
-	else 
-	{
-		if (jumpflag)
-		{
-			jumpflag = false;
-		}
-	}
-
 	Atack();
-	Jump();
-	
 }
 
 void Player::Draw()
@@ -112,47 +101,12 @@ void Player::Atack()
 		}
 		else {}
 
-		if (Map::GetMapData(ballY / 32, ballX / 32) == 0 ||
-			Map::GetMapData(ballY / 32, (ballX / 32) + 1) == 0)
+		if (Map::GetMapData(ballY / TIP_SIZE, ballX / TIP_SIZE) == 0 ||
+			Map::GetMapData(ballY / TIP_SIZE, (ballX / TIP_SIZE) + 1) == 0)
 		{
 			atackflag = false;
 		}
 	}
-}
-
-void Player::Jump()
-{
-	if (CheckHitKey(KEY_INPUT_SPACE) == 1 && !jumpflag && Map::GetMapData((y / 32) + 1, x / 32) == 0)
-	{
-		jumpflag = true;
-		jumpspeed = 8.0;
-	}
-
-	if (jumpflag)
-	{
-		jumpcounter++;
-		if (jumpcounter < 50)
-		{
-			y -= jumpspeed;
-			jumpspeed -= 0.1;
-		}
-		else
-		{
-			jumpflag = false;
-			jumpcounter = 0;
-		}
-	}
-	else {}
-}
-
-int Player::GetX()
-{
-	return (int)x;
-}
-
-int Player::GetY()
-{
-	return (int)y;
 }
 
 int Player::GetBX()

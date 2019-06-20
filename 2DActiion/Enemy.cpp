@@ -3,12 +3,14 @@
 Enemy::Enemy() 
 	: BaseChara()
 {
+	life = START_LIFE - 4;
 	x = 0;
 	y = 0;
 	bx = 0;
 	by = 0;
 	speed = 0;
-	jumpflag = false;
+	jspeed = 16.0;
+	jflag = false;
 	muki = Muki::Right;
 	mode = 0;
 }
@@ -16,12 +18,14 @@ Enemy::Enemy()
 Enemy::Enemy(int _y, int _x, int _mode, int _muki)
 	: BaseChara()
 {
+	life = START_LIFE - 4;
 	y = _y;
 	x = _x;
 	bx = 0;
 	by = 0;
 	speed = 1.4;
-	jumpflag = false;
+	jspeed = 0.0;
+	jflag = false;
 	if (muki == 0)
 	{
 		muki = Muki::Right;
@@ -40,50 +44,37 @@ Enemy::~Enemy()
 	bx = 0;
 	by = 0;
 	speed = 0;
-	jumpflag = false;
+	jflag = false;
 	muki = Muki::Right;
 }
 
 void Enemy::Update()
 {
-	/*if (Map::GetMapData((int)y / 32, ((int)x / 32) + 1) == 0 && muki == Muki::Right)
-	{
-		muki = Muki::Left;
-	}
-	else if (Map::GetMapData((int)y / 32, (int)x / 32) == 0 && muki == Muki::Left)
-	{
-		muki = Muki::Right;
-	}
-	else {}
+	// 移動
+	BaseChara::Move(false);
 
-	switch (muki)
-	{
-	case Muki::Left:
-		x += speed;
-		break;
-	case Muki::Right:
-		x -= speed;
-		break;
-	default:
-		break;
-	}*/
-	
+	// 行動
 	if (mode == 0)
 	{
 		// 何もなし
 	}
 	else if (mode == 1)
 	{
-		// ジャンプさせるのみ
+		BaseChara::JumpMotion(false);
 	}
 	else {}
-	
+
+	// 重力処理
 	BaseChara::GravtyMotion();
+
+	// ヒット処理
+	BaseChara::HitMotion();
 }
 
 void Enemy::Draw()
 {
-	DrawBox((int)x, (int)y, (int)x + 32, (int)y + 32, 0x00FF00, true);
+	DrawBox((int)x - 15, (int)y - 15, (int)x + 15, (int)y + 15, 0x00FF00, true);
+	DrawFormatString((int)x, (int)y, 0xFF0000, "%d", life);
 }
 
 void Enemy::Atack()

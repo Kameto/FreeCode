@@ -5,29 +5,30 @@ Game::Game()
 	// ランダム用変数設定
 	std::random_device rnd;
 	std::mt19937 mt(rnd());
-	std::uniform_int_distribution<> e_rnd(0, 50);
+	std::uniform_int_distribution<> e_rnd(0, 10);
 
 	// 初期化・生成
-	map = new Map();
-	player = new Player(512, 96);	
+	player = new Player(512, 512);
+	Camera::SetCamera(player->GetY(), player->GetX());
+	Camera::SetCSpeed(player->GetSpeed());
 
 	enemy.resize(0);
 	for (int i = 0; i < ENEMY_NUM; i++)
 	{
-		enemy.push_back(new Enemy(512, i * 64, e_rnd(mt) % 2, e_rnd(mt) % 2));
+		enemy.push_back(new Enemy(512, (i * 64) + 64 , e_rnd(mt) % 2, e_rnd(mt) % 2));
 	}
 	item.resize(0);
 
 	std::uniform_int_distribution<> h_rnd(2, Map::GetmapSizeY() - 2);	// マップ縦範囲
-	std::uniform_int_distribution<> w_rnd(2, Map::GetMapSizeX() - 60);	// マップ横範囲
+	std::uniform_int_distribution<> w_rnd(2, Map::GetMapSizeX() - 55);	// マップ横範囲
 	itemcounter = 0;
 	for (int i = 0, px = 0, py = 0; i < ITEM_NUM; i++)
 	{
 		while (true)
 		{
-			px = h_rnd(mt);
-			py = w_rnd(mt);
-			if (Map::GetMapData(px, py) == 0)
+			py = h_rnd(mt);
+			px = w_rnd(mt);
+			if (Map::GetMapData(py, px) == 0)
 			{
 				itemcounter++;
 				continue;
@@ -42,6 +43,7 @@ Game::Game()
 	min = START_TIME;
 	sec = 0;
 	timeflag = false;
+	changetimer = 0;
 }
 
 Game::~Game()
@@ -67,17 +69,23 @@ Game::~Game()
 	enemy.erase(enemy.begin(), enemy.end());
 	delete player;
 	player = nullptr;
-	delete map;
-	map = nullptr;
 	min = 0;
 	sec = 0;
 	timeflag = false;
+	changetimer = 0;
 }
 
 void Game::Update()
 {
 	// プレイヤーの処理
 	player->Update();
+	Camera::Update(player->GetY(), player->GetX());
+
+	// ゴールについたら
+	if (Map::GetMapData(player->GetY() / 32, player->GetX() / 32) == 2)
+	{
+		timeflag = true;
+	}
 
 	// アイテムの判定処理
 	for (int i = 0, n = (unsigned)item.size(); i < n; i++)
@@ -102,7 +110,17 @@ void Game::Update()
 			if (abs(player->GetX() - enemy[i]->GetX()) < P_TO_E_RANGE &&
 				abs(player->GetY() - enemy[i]->GetY()) < P_TO_E_RANGE)
 			{
-				// ライフの減少処理
+				if (!player->hitflag && player->life > 0)
+				{
+					player->life--;
+					player->hitflag = true;
+					if (player->life == 0)
+					{
+						timeflag = true;
+						break;
+					}
+				}
+				else {}
 			}
 
 			// 球との判定処理
@@ -110,18 +128,37 @@ void Game::Update()
 				abs(player->GetBY() - enemy[i]->GetY()) < E_TO_B_RANGE)
 			{
 				player->atackflag = false;
-				enemy.erase(enemy.begin() + i);
-				break;
+				if (!enemy[i]->hitflag && enemy[i]->life > 0)
+				{
+					enemy[i]->life--;
+					enemy[i]->hitflag = true;
+					if (enemy[i]->life == 0)
+					{
+						enemy.erase(enemy.begin() + i);
+						break;
+					}
+				}
+				else {}
 			}
 		}
+	}
+	else
+	{
+		timeflag = true;
 	}
 
 	// 制限時間タイマー
 	GameTimer();
 
-#ifdef _DEBUG
-	GameDebugUpdate();
-#endif
+	if (timeflag)
+	{
+		changetimer++;
+		if (changetimer == 5)
+		{
+			BaseScene::nowScene = DScene::dTitle;
+		}
+	}
+	else{}
 }
 
 void Game::Draw()
@@ -135,8 +172,7 @@ void Game::Draw()
 		item[i]->Draw();
 	}
 
-	// マップの描画
-	map->Draw();
+	MapDraw();
 	
 	// プレイヤーの描画
 	player->Draw();
@@ -147,9 +183,12 @@ void Game::Draw()
 		enemy[i]->Draw();
 	}
 
+	Camera::Draw();
+
 	// 制限時間タイマーの描画
 	DrawCircle(0, 0, 50, 0xFFFFFF, true);
 	DrawCircle(0, 0, 50, 0xFF0000, false);
+
 	if (min > 10)
 	{
 		if (min >= 99)
@@ -165,49 +204,31 @@ void Game::Draw()
 	{
 		DrawFormatString(0, 0, 0xFF0000, "0%d", min);
 	}
-
-#ifdef _DEBUG
-	GameDebugDraw();
-#endif
-
 }
 
-void Game::GameDebugUpdate()
+void Game::MapDraw()
 {
-	// アイテム生成
-	if (CheckHitKey(KEY_INPUT_A) == 1)
+	for (int i = 0, n = Map::GetmapSizeY(); i < n; i++)
 	{
-		for (int i = 0; i < 7; i++)
+		for (int j = 0 , m = Map::GetMapSizeX() ; j < m; j++)
 		{
-			item.push_back(new Item(192, i * 32));
+			BOX_EN(j, i, TIP_SIZE, 0x000000);
+			if (Map::GetMapData(i, j) == 0)
+			{
+				if (Graph::GetTipGraph() != (-1 || 0))
+				{
+					DrawGraph((j * TIP_SIZE) - (Camera::c_moverX / 2), i * TIP_SIZE, Graph::GetTipGraph(), true);
+				}
+				else
+				{
+					BOX_EO(j, i, TIP_SIZE, 0xFFFF00);
+				}
+			}
+			else if (Map::GetMapData(i, j) == 2)
+			{
+				BOX_EO(j, i, TIP_SIZE, 0xFF0000);
+			}
 		}
-	}
-}
-
-void Game::GameDebugDraw()
-{
-	// 敵との判定debugコメント表示
-	DrawFormatString(640, 0, 0xFF0000, "Enemy");
-	for (int i = 0, n = (unsigned)enemy.size(); i < n; i++)
-	{
-		if (abs(player->GetX() - enemy[i]->GetX()) < P_TO_E_RANGE &&
-			abs(player->GetY() - enemy[i]->GetY()) < P_TO_E_RANGE)
-		{
-			DrawFormatString(640, 32, 0xFF0000, "Hit_Now!!!");
-		}
-	}
-
-	// アイテムの判定debugコメント表示
-	DrawFormatString(768, 0, 0xFF0000, "Item");
-	DrawFormatString(768, 32, 0xFF0000, "reset: %d", itemcounter);
-	for (int i = 0, n = (unsigned)item.size(); i < n; i++)
-	{
-		if (abs(player->GetX() - item[i]->x) < 24 &&
-			abs(player->GetY() - item[i]->y) < 24)
-		{
-			DrawFormatString(768, 64, 0xFF0000, "Hit_Now!!!");
-		}
-		DrawFormatString(960, (i * 32), 0xFF0000, "Y: %d .X: %d", (item[i]->y / 32), (item[i]->x / 32));
 	}
 }
 

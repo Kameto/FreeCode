@@ -19,7 +19,6 @@ public:
 	bool atackflag;
 
 private:
-	int timer;
 	double ballX;
 	double ballY;
 	

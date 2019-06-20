@@ -3,7 +3,7 @@
 Player::Player() 
 	: BaseChara()
 {
-	life = START_LIFE;
+	life = START_LIFE - 3;
 	timer = 0;
 	ballX = 0;
 	ballY = 0;
@@ -18,13 +18,13 @@ Player::Player(double _x, double _y)
 	y = _y;
 	bx = x;
 	by = y;
-	speed = 4.2;
-	life = START_LIFE;
+	speed = 4.0;
+	life = START_LIFE - 3;
 	timer = 0;
 	ballX = 0;
 	ballY = 0;
 	atackflag = false;
-	b_muki = Muki::Right;
+	b_muki = Muki::None;
 }
 
 Player::~Player()
@@ -33,60 +33,63 @@ Player::~Player()
 	ballX = 0;
 	ballY = 0;
 	atackflag = false;
-	b_muki = Muki::Right;
+	b_muki = Muki::None;
 }
 
 void Player::Update()
-{	
-	if (CheckHitKey(KEY_INPUT_RIGHT) > 0)
-	{
-		muki = Muki::Right;
-		x += speed;
-	}
-	else if (CheckHitKey(KEY_INPUT_LEFT) > 0)
-	{
-		muki = Muki::Left;
-		x -= speed;
-	}
-	else {}
+{
+	// ジャンプ処理
+	BaseChara::JumpMotion(true);
 
-	BaseChara::GravtyMotion();
-	if (CheckHitKey(KEY_INPUT_SPACE) == 1 && !jumpflag)
+	// 重力処理
+	if(!jflag)
 	{
-		BaseChara::JumpMotion();
+		BaseChara::GravtyMotion();
 	}
+
+	// 攻撃処理
 	Atack();
+
+	// 移動処理
+	BaseChara::Move(true);
+
+	// ヒット処理
+	BaseChara::HitMotion();
 }
 
 void Player::Draw()
 {
-	DrawBox((int)x, (int)y, (int)x + 32, (int)y + 32, 0x00FF00, true);
+	if (life <= 5 && life >= 3)
+	{
+		DrawBox((int)x - 12, (int)y - 12, (int)x + 12, (int)y + 12, 0x00FF00, true);
+	}
+	else
+	{
+		DrawBox((int)x - 12, (int)y - 12, (int)x + 12, (int)y + 12, 0x00FF00, true);
+	}
 
 	if (atackflag)
 	{
-		DrawCircle(ballX, ballY, 10, 0xFF0000, true, true);
+		DrawCircle((int)ballX, (int)ballY, 10, 0xFF0000, true, true);
 	}
 	else {}
 }
 
 void Player::Atack()
 {
-	if (CheckHitKey(KEY_INPUT_W) == 1)
+	if ((Keyboard::GetKey(KEY_INPUT_B) == 1 || Joypad::GetPad(XINPUT_BUTTON_B) == 1) && !atackflag)
 	{
 		atackflag = true;
-		if (muki == Muki::Right)
+		if (bc_muki == Muki::Right)
 		{
-			ballX = x + 64;
-			ballY = y + 16;
-			b_muki = Muki::Right;
+			ballX = x + 64.0;
 		}
-		else if (muki == Muki::Left)
+		else if (bc_muki == Muki::Left)
 		{
-			ballX = x - 32;
-			ballY = y + 16;
-			b_muki = Muki::Left;
+			ballX = x - 32.0;
 		}
-		else {}
+		ballY = y;
+		b_muki = bc_muki;
 	}
 
 	if (atackflag)
@@ -101,11 +104,15 @@ void Player::Atack()
 		}
 		else {}
 
-		if (Map::GetMapData(ballY / TIP_SIZE, ballX / TIP_SIZE) == 0 ||
-			Map::GetMapData(ballY / TIP_SIZE, (ballX / TIP_SIZE) + 1) == 0)
+		if (Map::GetMapData((int)ballY / TIP_SIZE, ((int)ballX / TIP_SIZE)) == 0)
 		{
 			atackflag = false;
 		}
+	}
+	else 
+	{
+		ballX = 0;
+		ballY = 0;
 	}
 }
 
